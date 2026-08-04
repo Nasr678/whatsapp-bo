@@ -1,14 +1,26 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const Groq = require('groq-sdk');
+const express = require('express');
 const fs = require('fs');
 const path = require('path');
+
+// 🌐 1️⃣ إنشاء خادم Express حل مشكلة Render Port Scan
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+    res.send('<h1>🤖 بوت ضجة مول يعمل بنجاح على Render!</h1>');
+});
+
+app.listen(PORT, () => {
+    console.log(`🌐 Web server is running on port ${PORT}`);
+});
 
 // ⚠️ مفتاح Groq الخاص بك
 const groq = new Groq({ apiKey: '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' });
 
 // 🔗 روابط القناة والكتالوج
 const CHANNEL_URL = "https://whatsapp.com/channel/0029VbD5We92975GDmPC2N0G"; 
-const CATALOG_URL = "https://wa.me/c/YOUR_NUMBER_HERE"; 
 
 const dajahStoreInfo = `
 - المتجر: ضجة مول للتخفيضات 🛍️
@@ -35,7 +47,7 @@ const client = new Client({
     }
 });
 
-// 📸 توليد رابط مباشر لرمز الـ QR لتسهيل المسح
+// 📸 توليد رابط مباشر لرمز QR رائع وواضح
 client.on('qr', (qr) => {
     const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qr)}`;
     
