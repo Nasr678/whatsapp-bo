@@ -33,35 +33,23 @@ const client = new Client({
     }
 });
 
-let isCodeGenerated = false;
+let codeRequested = false;
 
 client.on('qr', async () => {
-    if (isCodeGenerated) return;
-    isCodeGenerated = true;
+    if (codeRequested) return;
+    codeRequested = true;
 
-    // انتظار ثانيتين لضمان استقرار الاتصال بالمخدم
-    setTimeout(async () => {
-        try {
-            const rawCode = await client.requestPairingCode('967783103638');
-            
-            // تحويل القيمة لنص صريح ومعالجة خانات الإدخال 8 أحرف
-            let codeStr = String(rawCode).trim();
-            if (codeStr.length === 7) {
-                codeStr = '0' + codeStr; // إرجاع الصفر المفقود في البداية
-            }
-
-            const part1 = codeStr.slice(0, 4);
-            const part2 = codeStr.slice(4, 8);
-            const finalPairCode = `${part1}-${part2}`;
-
-            console.log('\n========================================');
-            console.log(`🔑 رمز ربط الواتساب (ادخله في الهاتف): ${finalPairCode}`);
-            console.log('========================================\n');
-        } catch (err) {
-            console.error('خطأ في استخراج الرمز:', err.message);
-            isCodeGenerated = false;
-        }
-    }, 2000);
+    try {
+        // طلب رمز الربط مباشرة من سيرفرات واتساب بدون أي تعديل يدوي
+        const pairingCode = await client.requestPairingCode('967783103638');
+        
+        console.log('\n========================================');
+        console.log(`🔑 رمز ربط الواتساب الجديد: ${pairingCode}`);
+        console.log('========================================\n');
+    } catch (err) {
+        console.error('خطأ في استخراج الرمز:', err.message);
+        codeRequested = false;
+    }
 });
 
 client.on('ready', () => {
