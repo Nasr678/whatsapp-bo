@@ -21,15 +21,19 @@ const dajahStoreInfo = `
 - طرق الدفع المتاحة: كاش عند الاستلام، محفظة جيب (777655115)، بنك الكريمي (777655115). 💳
 `;
 
-// ⚙️ إعدادات العميل المتوافقة مع السيرفرات السحابية المجانية
+// ⚙️ إعدادات العميل المتوافقة مع السيرفرات السحابية المجانية و Docker
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--single-process'
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu'
         ]
     }
 });
