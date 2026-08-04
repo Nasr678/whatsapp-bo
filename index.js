@@ -36,20 +36,30 @@ const client = new Client({
     }
 });
 
-// 📲 توليد وتنسيق رمز الربط المكون من 8 أحرف/أرقام
+// 📲 استخراج وتنسيق رمز الربط بـ 8 أرقام مفصولة بشرطة تلقائياً
+let pairCodeRequested = false;
 client.on('qr', async () => {
+    if (pairCodeRequested) return;
+    pairCodeRequested = true;
+
     try {
-        const phoneNumber = "967783103638"; 
-        const code = await client.requestPairingCode(phoneNumber);
+        // انتظر ثانية واحدة لضمان جاهزية السيرفر لطلب الكود
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
-        // تنسيق الرمز بالشكل الصحيح 8 أرقام/حروف مفصولة بشرطة (مثال: XXXX-XXXX)
-        const formattedCode = code?.match(/.{1,4}/g)?.join('-') || code;
+        const rawCode = await client.requestPairingCode("967783103638");
         
+        // إزالة أي رموز غريبة وتأكيد التنسيق 4-4
+        const cleanCode = String(rawCode).replace(/[^a-zA-Z0-9]/g, '');
+        const formattedCode = cleanCode.length >= 8 
+            ? `${cleanCode.slice(0, 4)}-${cleanCode.slice(4, 8)}`
+            : cleanCode;
+
         console.log('\n==================================');
         console.log(`🔑 رمز ربط الواتساب الخاص بك هو: ${formattedCode}`);
         console.log('==================================\n');
     } catch (err) {
         console.error('خطأ في استخراج رمز الربط:', err.message);
+        pairCodeRequested = false;
     }
 });
 
