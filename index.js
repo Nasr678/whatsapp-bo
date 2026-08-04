@@ -3,8 +3,10 @@ const Groq = require('groq-sdk');
 const fs = require('fs');
 const path = require('path');
 
+// ⚠️ مفتاح Groq الخاص بك
 const groq = new Groq({ apiKey: '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' });
 
+// 🔗 روابط القناة والكتالوج
 const CHANNEL_URL = "https://whatsapp.com/channel/0029VbD5We92975GDmPC2N0G"; 
 const CATALOG_URL = "https://wa.me/c/YOUR_NUMBER_HERE"; 
 
@@ -33,23 +35,14 @@ const client = new Client({
     }
 });
 
-let codeRequested = false;
-
-client.on('qr', async () => {
-    if (codeRequested) return;
-    codeRequested = true;
-
-    try {
-        // طلب رمز الربط مباشرة من سيرفرات واتساب بدون أي تعديل يدوي
-        const pairingCode = await client.requestPairingCode('967783103638');
-        
-        console.log('\n========================================');
-        console.log(`🔑 رمز ربط الواتساب الجديد: ${pairingCode}`);
-        console.log('========================================\n');
-    } catch (err) {
-        console.error('خطأ في استخراج الرمز:', err.message);
-        codeRequested = false;
-    }
+// 📸 توليد رابط مباشر لرمز الـ QR لتسهيل المسح
+client.on('qr', (qr) => {
+    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qr)}`;
+    
+    console.log('\n========================================');
+    console.log('📱 افتح الرابط التالي في المتصفح لمسح رمز الـ QR:');
+    console.log(qrImageUrl);
+    console.log('========================================\n');
 });
 
 client.on('ready', () => {
@@ -76,6 +69,7 @@ client.on('message_create', async msg => {
     try {
         let userQuery = msg.body || '';
 
+        // 🎙️ معالجة البصمات الصوتية
         if (msg.hasMedia && (msg.type === 'audio' || msg.type === 'ptt')) {
             const media = await msg.downloadMedia();
             const ext = media.mimetype.includes('ogg') ? 'ogg' : 'mp3';
@@ -100,6 +94,7 @@ client.on('message_create', async msg => {
 
         console.log(`📩 الرسالة الواردة: ${userQuery}`);
 
+        // 📝 استمارة حجز الطلب
         const isOrder = userQuery.includes('طلب') || userQuery.includes('أطلب') || userQuery.includes('أشتري') || userQuery.includes('حجز');
         if (isOrder && !userQuery.includes('استمارة')) {
             const orderForm = `📝 *استمارة حجز الطلب — ضجة مول* 🛍️✨\n\nأرسل لنا بياناتك لتأكيد الطلب فوراً:\n\n👤 *الاسم الكامل:*\n📱 *رقم التواصل:*\n📍 *العنوان بالتفصيل:*\n👗 *اسم الموديل والسعر:*\n🔢 *الكمية والمقاس:*\n💵 *شمالي أم جنوبي:*`;
@@ -107,6 +102,7 @@ client.on('message_create', async msg => {
             return;
         }
 
+        // 💬 رد الذكاء الاصطناعي
         const chatCompletion = await groq.chat.completions.create({
             messages: [
                 { role: 'system', content: systemPrompt },
