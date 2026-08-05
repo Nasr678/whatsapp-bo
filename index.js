@@ -4,16 +4,16 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
-// 🌐 1️⃣ إنشاء خادم Express حل مشكلة Render Port Scan
+// 🌐 إنشاء خادم Express لإبقاء الخدمة المجانية شغالة بدون أخطاء Render
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
 app.get('/', (req, res) => {
-    res.send('<h1>🤖 بوت ضجة مول يعمل بنجاح على Render!</h1>');
+    res.send('<h1>🤖 بوت ضجة مول يعمل بنجاح!</h1>');
 });
 
-app.listen(PORT, () => {
-    console.log(`🌐 Web server is running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ Web server is running on port ${PORT}`);
 });
 
 // ⚠️ مفتاح Groq الخاص بك
@@ -47,7 +47,7 @@ const client = new Client({
     }
 });
 
-// 📸 توليد رابط مباشر لرمز QR رائع وواضح
+// 📸 توليد رابط مباشر لرمز QR
 client.on('qr', (qr) => {
     const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qr)}`;
     
