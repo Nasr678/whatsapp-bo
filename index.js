@@ -1,14 +1,13 @@
-const { makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
-const Groq = require('groq-sdk');
-const express = require('express');
+import makeWASocket, { useMultiFileAuthState, DisconnectReason } from '@whiskeysockets/baileys';
+import Groq from 'groq-sdk';
+import express from 'express';
 
-// 🌐 خادم Express لمنع إغلاق السيرفر
 const app = express();
 const PORT = process.env.PORT || 10000;
+
 app.get('/', (req, res) => res.send('<h1>🤖 بوت ضجة مول يعمل بنجاح وبدون استهلاك ذاكرة!</h1>'));
 app.listen(PORT, '0.0.0.0', () => console.log(`🌐 Server running on port ${PORT}`));
 
-// ⚠️ مفتاح Groq الخاص بك
 const groq = new Groq({ apiKey: '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' });
 const CHANNEL_URL = "https://whatsapp.com/channel/0029VbD5We92975GDmPC2N0G";
 
@@ -24,7 +23,7 @@ const systemPrompt = `أنت "ضجة AI" المساعد لمتجر "ضجة مو�
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
     
-    const sock = makeWASocket({
+    const sock = makeWASocket.default({
         auth: state,
         printQRInTerminal: false
     });
@@ -65,14 +64,12 @@ async function startBot() {
         console.log(`📩 رسالة من (${from}): ${textMessage}`);
 
         try {
-            // استمارة طلب
             if ((textMessage.includes('طلب') || textMessage.includes('أشتري') || textMessage.includes('حجز')) && !textMessage.includes('استمارة')) {
                 const orderForm = `📝 *استمارة حجز الطلب — ضجة مول* 🛍️✨\n\nأرسل لنا بياناتك لتأكيد الطلب فوراً:\n\n👤 *الاسم الكامل:*\n📱 *رقم التواصل:*\n📍 *العنوان بالتفصيل:*\n👗 *اسم الموديل والسعر:*`;
                 await sock.sendMessage(from, { text: orderForm });
                 return;
             }
 
-            // الذكاء الاصطناعي
             const chatCompletion = await groq.chat.completions.create({
                 messages: [
                     { role: 'system', content: systemPrompt },
